@@ -5,7 +5,7 @@ import requests
 # Get a free API key at https://api.the-odds-api.com/
 API_KEY = "2d319702d293bc1f4ef00f963615da65"
 
-SPORT = 'americanfootball_nfl' #'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+SPORT = 'americanfootball_ncaaf' #'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
 
 REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
 
@@ -64,10 +64,13 @@ if odds_response.status_code != 200:
 else:
     odds_json = odds_response.json()
     print('Number of events:', len(odds_json))
+    print()
     print(odds_json)
+    print()
 
     # Check the usage quota
     print('Remaining requests', odds_response.headers['x-requests-remaining'])
+    print()
     print('Used requests', odds_response.headers['x-requests-used'])
 
     
