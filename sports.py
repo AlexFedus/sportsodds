@@ -100,13 +100,70 @@ else:
 
     print()
 
-    totaldata = len(data)-1
-    i = 1
-    while i < totaldata:
-        print(data[i]["home_team"])
-        print(data[i]["away_team"])
-        print()
-        i +=1
+    if SPORT=='americanfootball_nfl':
+
+        totaldata = len(data)
+        i = 0
+        while i < totaldata:
+            home =(data[i]["home_team"])
+            
+            away = (data[i]["away_team"])
+
+            print(home, "at", away)
+
+            print("   Sportsbook: ",data[i]['bookmakers'][1]['title'])
+            print("   Moneyline:")
+            print("      ",data[i]['bookmakers'][1]['markets'][0]['outcomes'][0]['name'])
+
+            price=(data[i]['bookmakers'][1]['markets'][0]['outcomes'][0]['price'])
+            if int(price) > 0:
+                price = "+"+str(price)
+
+            print('         ',price)   
+
+            print("      ",data[i]['bookmakers'][1]['markets'][0]['outcomes'][1]['name'])
+            
+
+            price2=(data[i]['bookmakers'][1]['markets'][0]['outcomes'][1]['price'])
+            if int(price2) > 0:
+                price2 = "+"+str(price2)
+
+            print('         ',price2) 
+
+            print("   Spread:")
+            print("      ",data[i]['bookmakers'][1]['markets'][1]['outcomes'][0]['name'])
+
+            points=data[i]['bookmakers'][1]['markets'][1]['outcomes'][0]['point']
+            if int(points) > 0:
+                points = "+"+str(points)
+
+            print("         Points: ", points)
+
+            odds = data[i]['bookmakers'][1]['markets'][1]['outcomes'][0]['price']
+            if int(odds) > 0:
+                odds = "+"+str(odds)
+
+            print("         Odds: ", odds)
+
+
+
+            #Spread - home team
+            print("      ",data[i]['bookmakers'][1]['markets'][1]['outcomes'][1]['name'])
+
+            points2=data[i]['bookmakers'][1]['markets'][1]['outcomes'][1]['point']
+            if int(points2) > 0:
+                points2 = "+"+str(points2)
+
+            print("         Points: ", points2)
+
+            odds2 = data[i]['bookmakers'][1]['markets'][1]['outcomes'][1]['price']
+            if int(odds2) > 0:
+                odds2 = "+"+str(odds2)
+
+            print("         Odds: ", odds2)
+            
+            print()
+            i +=1
 
 
 """"
