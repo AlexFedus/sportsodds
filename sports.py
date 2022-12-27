@@ -1,190 +1,109 @@
+import tkinter as tk
+from tkinter import ttk
 import requests
 import json
 
+class App(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
-
-API_KEY = "2d319702d293bc1f4ef00f963615da65"
-SPORT = 'americanfootball_ncaaf' #'upcoming' # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
-REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
-MARKETS = 'h2h,spreads' # h2h | spreads | totals. Multiple can be specified if comma delimited
-ODDS_FORMAT = 'american' # decimal | american
-DATE_FORMAT = 'iso' # iso | unix
-
-
-
-
-
-
-sportchoice= (input("Choose NCAA or NFL:  "))
-
-if (sportchoice == 'ncaa') or (sportchoice == "NCAA"):
-    SPORT = 'americanfootball_ncaaf'
-
-else:
-    SPORT = 'americanfootball_nfl'    
-
-odds_response = requests.get(
-    f'https://api.the-odds-api.com/v4/sports/{SPORT}/odds',
-    params={
-        'api_key': API_KEY,
-        'regions': REGIONS,
-        'markets': MARKETS,
-        'oddsFormat': ODDS_FORMAT,
-        'dateFormat': DATE_FORMAT,
-    }
-)
-
-if odds_response.status_code != 200:
-    print(f'Failed to get odds: status_code {odds_response.status_code}, response body {odds_response.text}')
-
-else:
-
-    data = json.loads(odds_response.text)
-    print()
-
-    if SPORT=='americanfootball_nfl':
-
-        sportsbookchoice = input("Choose your sportsbook: 'Barstool, DraftKings, or FanDual':  ")
-        if (sportsbookchoice == "Barstool") or (sportsbookchoice == "barstool"):
-            sportsbookNum = 3
+        API_KEY = "2d319702d293bc1f4ef00f963615da65"
+        REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
+        MARKETS = 'h2h,spreads' # h2h | spreads | totals. Multiple can be specified if comma delimited
+        ODDS_FORMAT = 'american' # decimal | american
+        DATE_FORMAT = 'iso' # iso | unix
         
-        elif (sportchoice == "Draftkings" or (sportsbookchoice == "Draftkings") or (sportsbookchoice == "draftkings")):
-            sportsbookNum = 16
-
-        elif (sportchoice == "FanDual" or (sportsbookchoice == "fandual") or (sportsbookchoice == "Fandual")):
-            sportsbookNum = 1
-
-        else:
-            sportsbookNum = -99
-            print("Sorry, please enter one of the three sportsbook listed. (Barstool, DraftKings, Fandual")
-            
+        # Set the size of the window and center it on the screen
+        screen_width = self.winfo_screenwidth()
+        screen_height = self.winfo_screenheight()
+        window_width = 600
+        window_height = 400
+        x_coord = (screen_width // 2) - (window_width // 2)
+        y_coord = (screen_height // 2) - (window_height // 2)
+        self.geometry(f'{window_width}x{window_height}+{x_coord}+{y_coord}')
         
-        if sportsbookNum != -99:
-            totaldata = len(data)
-            i = 0
-            while i < totaldata:
-                home = (data[i]["home_team"])
-                away = (data[i]["away_team"])
-                sportsbook= (data[i]['bookmakers'][sportsbookNum]['title'])
-                hometeam = (data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][1]['name'])
-                awayteam = (data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][0]['name'])
-
-                price=(data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][0]['price'])
-                if int(price) > 0:
-                    price = "+"+str(price)
-
-                price2=(data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][1]['price'])
-                if int(price2) > 0:
-                    price2 = "+"+str(price2)
-
-                points=(data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][0]['point'])
-                if int(points) > 0:
-                    points = "+"+str(points)
-                
-                points2=(data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][1]['point'])
-                if int(points2) > 0:
-                    points2 = "+"+str(points2)
-
-                odds = (data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][0]['price'])
-                if int(odds) > 0:
-                    odds = "+"+str(odds)
-
-                odds2 = (data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][1]['price'])
-                if int(odds2) > 0:
-                    odds2 = "+"+str(odds2)
-
-
-                print(home, "at", away)
-                print("   Sportsbook: " + sportsbook)
-                print("   Moneyline:")
-                print("      ",awayteam)
-                print('         ',price)   
-                print("      ",hometeam)
-                print('         ',price2) 
-                print("   Spread:")
-                print("      ", awayteam)
-                print("         Points: ", points)
-                print("         Odds: ", odds)
-                print("      ",hometeam)
-                print("         Points: ", points2)
-                print("         Odds: ", odds2)   
-                print()
-
-                i +=1
-                
-    elif SPORT=='americanfootball_ncaaf':
+        # Use the 'clam' theme
+        self.style = ttk.Style(self)
+        self.style.theme_use('clam')
         
-        sportsbookchoice = input("Choose your sportsbook: 'Barstool or DraftKings':  ")
-        if (sportsbookchoice == "Barstool") or (sportsbookchoice == "barstool"):
-            sportsbookNum = 7
+        # Create the frames for each sport
+        self.ncaa_frame = tk.Frame(self)
+        self.nfl_frame = tk.Frame(self)
         
-        elif (sportchoice == "Draftkings" or (sportsbookchoice == "Draftkings") or (sportsbookchoice == "draftkings")):
-            sportsbookNum = 1
-
-        else:
-            sportsbookNum = -99
-            print("Sorry, please enter one of the three sportsbook listed. (Barstool, DraftKings, Fandual")
-            
+        # Create the widgets for the NCAA frame
+        ncaa_label = ttk.Label(self.ncaa_frame, text='NCAA Football')
+        ncaa_label.pack(pady=10)
+        back_button = ttk.Button(self.ncaa_frame, text='Back', command=self.show_default)
+        back_button.pack(side='right')
         
-        if sportsbookNum != -99:
-            totaldata = len(data)
-            i = 0
-            while i < totaldata:
-                home = (data[i]["home_team"])
-                away = (data[i]["away_team"])
-                sportsbook= (data[i]['bookmakers'][sportsbookNum]['title'])
-                hometeam = (data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][1]['name'])
-                awayteam = (data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][0]['name'])
+        # Get the NCAA data and display it
+        ncaa_response = requests.get(
+            f'https://api.the-odds-api.com/v4/sports/americanfootball_ncaaf/odds',
+            params={
+                'api_key': API_KEY,
+                'regions': REGIONS,
+                'markets': MARKETS,
+                'oddsFormat': ODDS_FORMAT,
+                'dateFormat': DATE_FORMAT,
+            }
+        )
 
-                price=(data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][0]['price'])
-                if int(price) > 0:
-                    price = "+"+str(price)
+        ncaa_data = json.loads(ncaa_response.text)
+        ncaa_text = tk.Text(self.ncaa_frame)
+        ncaa_text.pack(fill='both', expand=True)
+        ncaa_text.insert('1.0', json.dumps(ncaa_data, indent=4))
 
-                price2=(data[i]['bookmakers'][sportsbookNum]['markets'][0]['outcomes'][1]['price'])
-                if int(price2) > 0:
-                    price2 = "+"+str(price2)
+        # Create the widgets for the NFL frame
+        nfl_label = ttk.Label(self.nfl_frame, text='NFL Football')
+        nfl_label.pack(pady=10)
+        back_button = ttk.Button(self.nfl_frame, text='Back', command=self.show_default)
+        back_button.pack(side='right')
 
-                points=(data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][0]['point'])
-                if int(points) > 0:
-                    points = "+"+str(points)
-                
-                points2=(data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][1]['point'])
-                if int(points2) > 0:
-                    points2 = "+"+str(points2)
+        # Get the NFL data and display it
 
-                odds = (data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][0]['price'])
-                if int(odds) > 0:
-                    odds = "+"+str(odds)
-
-                odds2 = (data[i]['bookmakers'][sportsbookNum]['markets'][1]['outcomes'][1]['price'])
-                if int(odds2) > 0:
-                    odds2 = "+"+str(odds2)
-
-
-                print(home, "at", away)
-                print("   Sportsbook: " + sportsbook)
-                print("   Moneyline:")
-                print("      ",awayteam)
-                print('         ',price)   
-                print("      ",hometeam)
-                print('         ',price2) 
-                print("   Spread:")
-                print("      ", awayteam)
-                print("         Points: ", points)
-                print("         Odds: ", odds)
-                print("      ",hometeam)
-                print("         Points: ", points2)
-                print("         Odds: ", odds2)   
-                print()
-
-                i +=1
+        nfl_response = requests.get(
+            f'https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds',
+            params={
+                'api_key': API_KEY,
+                'regions': REGIONS,
+                'markets': MARKETS,
+                'oddsFormat': ODDS_FORMAT,
+                'dateFormat': DATE_FORMAT,
+            }
+        )
         
-        
+        nfl_data = json.loads(nfl_response.text)
+        nfl_text = tk.Text(self.nfl_frame)
+        nfl_text.pack(fill='both', expand=True)
+        nfl_text.insert('1.0', json.dumps(nfl_data, indent=4))
 
+        # Create the default frame and its widgets
+        self.default_frame = tk.Frame(self)
+        default_label = ttk.Label(self.default_frame, text='Choose a sport:')
+        default_label.pack(pady=10)
+        ncaa_button = ttk.Button(self.default_frame, text='NCAA Football', command=self.show_ncaa)
+        nfl_button = ttk.Button(self.default_frame, text='NFL Football', command=self.show_nfl)
+        ncaa_button.pack(side='left')
+        nfl_button.pack(side='left')
 
-""""
-    # Check the usage quota
-    print('Remaining requests', odds_response.headers['x-requests-remaining'])
-    print()
-    print('Used requests', odds_response.headers['x-requests-used'])
-"""
+        # Show the default frame by default
+        self.show_default()
+
+    def show_ncaa(self):
+        self.ncaa_frame.pack()
+        self.nfl_frame.pack_forget()
+        self.default_frame.pack_forget()
+
+    def show_nfl(self):
+        self.nfl_frame.pack()
+        self.ncaa_frame.pack_forget()
+        self.default_frame.pack_forget()
+
+    def show_default(self):
+        self.default_frame.pack()
+        self.ncaa_frame.pack_forget()
+        self.nfl_frame.pack_forget()
+
+app = App()
+app.mainloop()
+
