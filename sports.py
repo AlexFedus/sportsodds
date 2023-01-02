@@ -3,6 +3,7 @@ from tkinter import ttk
 import requests
 import json
 
+
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
@@ -16,8 +17,8 @@ class App(tk.Tk):
         # Set the size of the window and center it on the screen
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
-        window_width = 600
-        window_height = 400
+        window_width = 800
+        window_height = 600
         x_coord = (screen_width // 2) - (window_width // 2)
         y_coord = (screen_height // 2) - (window_height // 2)
         self.geometry(f'{window_width}x{window_height}+{x_coord}+{y_coord}')
@@ -49,10 +50,127 @@ class App(tk.Tk):
         )
 
         ncaa_data = json.loads(ncaa_response.text)
+
+        
+        ncaa_listbox = tk.Listbox(self.ncaa_frame, width=75)
+        ncaa_listbox.pack(fill='both', expand=True)
+
+        total_ncaa_data = len(ncaa_data)
+        i = 0
+        while i < total_ncaa_data:
+            print(i)
+
+            hometeam = ncaa_data[i]["home_team"]
+            awayteam = ncaa_data[i]["away_team"]
+            matchupstring = awayteam + " VS " + hometeam
+            ncaa_listbox.insert('end', matchupstring)
+            ncaa_listbox.itemconfig('end', {'bg':'red'})
+
+            bookmakertotal = len(ncaa_data[i])
+            b = 0
+            while b < bookmakertotal:
+                sportsbook = ncaa_data[i]["bookmakers"][b]["title"]
+
+                try:
+                    spreadname = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][0]["name"]
+                    spreadprice = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][0]["point"]
+                    spreadodd = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][0]["price"]
+
+                    spreadname2 = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][1]["name"]
+                    spreadprice2 = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][1]["point"]
+                    spreadodd2 = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][1]["price"]
+
+                    if(spreadprice > 0):
+                        spreadprice = str("+"+str(spreadprice))
+                    if(spreadodd > 0):
+                        spreadodd = str("+"+str(spreadodd))
+                    if(spreadprice2 > 0):
+                        spreadprice2 = str("+"+str(spreadprice2))
+                    if(spreadodd2 > 0):
+                        spreadodd2 = str("+"+str(spreadodd2))
+                
+                except:
+                    spreadname = "null"
+                    spreadprice = "null"
+                    spreadodd = "null"
+
+                    spreadname2 = "null"
+                    spreadprice2 = "null"
+                    spreadodd2 = "null"
+
+
+                
+                
+                
+
+                moneyname = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][0]["name"]
+                moneyodd = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][0]["price"]
+                moneyname2 = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][1]["name"]
+                moneyodd2 = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][1]["price"]
+
+
+                if(moneyodd > 0):
+                    moneyodd = str("+"+str(moneyodd))
+                if(moneyodd2 > 0):
+                    moneyodd2 = str("+"+str(moneyodd2))
+
+                moneylinestring = moneyname + " " + str(moneyodd)
+                moneylinestring2 = moneyname2 + " " + str(moneyodd2)
+                ncaa_listbox.insert('end', "        "+sportsbook)
+                ncaa_listbox.itemconfig('end', {'bg':'lightgreen'})
+
+                ncaa_listbox.insert('end', "                Spread -     " + str(spreadname))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                                        Point    " + str(spreadprice))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                                        Odds     " + str(spreadodd))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                             " + str(spreadname2))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                                        Point    " + str(spreadprice2))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                                        Odds     " + str(spreadodd2))
+                ncaa_listbox.itemconfig('end', {'bg':'lightblue'})
+
+                ncaa_listbox.insert('end', "                Moneyline -  " + moneylinestring)
+                ncaa_listbox.itemconfig('end', {'bg':'orange'})
+
+                ncaa_listbox.insert('end', "                                      " + moneylinestring2)
+                ncaa_listbox.itemconfig('end', {'bg':'orange'})
+
+                b += 1
+
+            i += 1
+            ncaa_listbox.insert('end', "")
+        
+        """
+        total_ncaa_data = len(ncaa_data)
+        print(total_ncaa_data)
+        i = 0
+        while i < total_ncaa_data:
+            home =(ncaa_data[i]["home_team"])
+            away =(ncaa_data[i]["away_team"])
+            ncaa_text = tk.Text(self.ncaa_frame)
+            ncaa_text.pack(fill='both', expand=True)
+            ncaa_text.insert('1.0', home + " " + away)
+            i += 1
+        """  
+
+            
+
+
+
+
+        """
         ncaa_text = tk.Text(self.ncaa_frame)
         ncaa_text.pack(fill='both', expand=True)
         ncaa_text.insert('1.0', json.dumps(ncaa_data, indent=4))
-
+        """
         # Create the widgets for the NFL frame
         nfl_label = ttk.Label(self.nfl_frame, text='NFL Football')
         nfl_label.pack(pady=10)
@@ -90,7 +208,7 @@ class App(tk.Tk):
         self.show_default()
 
     def show_ncaa(self):
-        self.ncaa_frame.pack()
+        self.ncaa_frame.pack(fill='both', expand=True)
         self.nfl_frame.pack_forget()
         self.default_frame.pack_forget()
 
