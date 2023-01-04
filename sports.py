@@ -2,6 +2,9 @@ import tkinter as tk
 from tkinter import ttk
 import requests
 import json
+from DateConverter import *
+import zoneinfo
+
 
 
 class App(tk.Tk):
@@ -37,6 +40,7 @@ class App(tk.Tk):
         ncaa_label.pack(pady=10)
         back_button = ttk.Button(self.ncaa_frame, text='Back', command=self.show_default)
         back_button.pack(side='right')
+
         
         # Get the NCAA data and display it
         ncaa_response = requests.get(
@@ -63,8 +67,15 @@ class App(tk.Tk):
 
             hometeam = ncaa_data[i]["home_team"]
             awayteam = ncaa_data[i]["away_team"]
+
+
             matchupstring = awayteam + " VS " + hometeam
             ncaa_listbox.insert('end', matchupstring)
+            ncaa_listbox.itemconfig('end', {'bg':'red'})
+
+
+            dateTime = ncaa_data[i]["commence_time"]
+            ncaa_listbox.insert('end', str(convertDate(dateTime)) + " EST")
             ncaa_listbox.itemconfig('end', {'bg':'red'})
 
             bookmakertotal = len(ncaa_data[i])
@@ -186,6 +197,11 @@ class App(tk.Tk):
             awayteam = nfl_data[i]["away_team"]
             matchupstring = awayteam + " VS " + hometeam
             nfl_listbox.insert('end', matchupstring)
+            nfl_listbox.itemconfig('end', {'bg':'red'})
+
+
+            dateTime = nfl_data[i]["commence_time"]
+            nfl_listbox.insert('end', str(convertDate(dateTime)) + " EST")
             nfl_listbox.itemconfig('end', {'bg':'red'})
 
             bookmakertotal = len(nfl_data[i])
