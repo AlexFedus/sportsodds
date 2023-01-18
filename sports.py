@@ -16,12 +16,13 @@ class App(tk.Tk):
         
         API_KEY = config.API_KEY
           
-        REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
-        MARKETS = 'h2h,spreads' # h2h | spreads | totals. Multiple can be specified if comma delimited
-        ODDS_FORMAT = 'american' # decimal | american
-        DATE_FORMAT = 'iso' # iso | unix
+        # Configures API parameters
+        REGIONS = 'us'
+        MARKETS = 'h2h,spreads' 
+        ODDS_FORMAT = 'american' 
+        DATE_FORMAT = 'iso' 
         
-        # Set the size of the window and center it on the screen
+        # Centers window on screen
         screen_width = self.winfo_screenwidth()
         screen_height = self.winfo_screenheight()
         window_width = 800
@@ -31,17 +32,17 @@ class App(tk.Tk):
         self.geometry(f'{window_width}x{window_height}+{x_coord}+{y_coord}')
         
         
-        # Use the 'clam' theme
+        # Applies the Clam theme
         self.style = ttk.Style(self)
         self.style.theme_use('clam')
         
-        # Create the frames for each sport
+        # Creates the frames for each sport
         self.ncaa_frame = tk.Frame(self)
         self.nfl_frame = tk.Frame(self)
         self.nba_frame = tk.Frame(self)
         self.nhl_frame = tk.Frame(self)
 
-        # Create the widgets for the NCAA frame
+        # Creates the widgets for the NCAA frame
         ncaa_label = ttk.Label(self.ncaa_frame, text='NCAA Football')
         ncaa_label.config(font="Times 32")
         ncaa_label.pack(pady=10)
@@ -63,14 +64,17 @@ class App(tk.Tk):
 
         ncaa_data = json.loads(ncaa_response.text)
 
-        
+        # Creates a listbox to display the data
         ncaa_listbox = tk.Listbox(self.ncaa_frame, width=75)
         ncaa_listbox.pack(fill='both', expand=True)
-
+        
+        
+        # Gathers and displays all matchups
         total_ncaa_data = len(ncaa_data)
         i = 0
         while i < total_ncaa_data:
 
+            # Sets the home and away teams to variables
             hometeam = ncaa_data[i]["home_team"]
             awayteam = ncaa_data[i]["away_team"]
 
@@ -79,16 +83,18 @@ class App(tk.Tk):
             ncaa_listbox.insert('end', matchupstring)
             ncaa_listbox.itemconfig('end', {'bg':'red'})
 
-
+            #Gets the time of the event and converts it to a readable format
             dateTime = ncaa_data[i]["commence_time"]
             ncaa_listbox.insert('end', str(convertDate(dateTime)) + " EST")
             ncaa_listbox.itemconfig('end', {'bg':'red'})
 
+            # Gathers and displays all Sportsbooks with moneyline odds along with spread odds
             bookmakertotal = len(ncaa_data[i]["bookmakers"])
             b = 0
             while b < bookmakertotal:
                 sportsbook = ncaa_data[i]["bookmakers"][b]["title"]
 
+                # Tries to get data for spreads and setting variables as null if they are not in the api
                 try:
                     spreadname = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][0]["name"]
                     spreadprice = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][0]["point"]
@@ -98,6 +104,7 @@ class App(tk.Tk):
                     spreadprice2 = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][1]["point"]
                     spreadodd2 = ncaa_data[i]["bookmakers"][b]["markets"][1]["outcomes"][1]["price"]
 
+                    # Adds a plus sign in front of positive numbers
                     if(spreadprice > 0):
                         spreadprice = str("+"+str(spreadprice))
                     if(spreadodd > 0):
@@ -120,13 +127,13 @@ class App(tk.Tk):
                 
                 
                 
-
+                # Gets moneyline odds
                 moneyname = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][0]["name"]
                 moneyodd = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][0]["price"]
                 moneyname2 = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][1]["name"]
                 moneyodd2 = ncaa_data[i]["bookmakers"][b]["markets"][0]["outcomes"][1]["price"]
 
-
+                # Adds a plus sign if odds are greater then 0
                 if(moneyodd > 0):
                     moneyodd = str("+"+str(moneyodd))
                 if(moneyodd2 > 0):
@@ -135,6 +142,9 @@ class App(tk.Tk):
                 moneylinestring = moneyname + " " + str(moneyodd)
                 moneylinestring2 = moneyname2 + " " + str(moneyodd2)
                 ncaa_listbox.insert('end', "        "+sportsbook)
+                
+                
+                #Adds data to the listbox
                 ncaa_listbox.itemconfig('end', {'bg':'lightgreen'})
 
                 ncaa_listbox.insert('end', "                Spread -     " + str(spreadname))
@@ -168,14 +178,14 @@ class App(tk.Tk):
             ncaa_listbox.config(font="Times 16")
         
  
-        # Create the widgets for the NFL frame
+        # Creates the widgets for the NFL frame
         nfl_label = ttk.Label(self.nfl_frame, text='NFL Football')
         nfl_label.config(font="Times 32")
         nfl_label.pack(pady=10)
         back_button = ttk.Button(self.nfl_frame, text='Back', command=self.show_default)
         back_button.pack(side='right')
 
-        # Get the NFL data and display it
+        # Gets the NFL data and display it
 
         nfl_response = requests.get(
             f'https://api.the-odds-api.com/v4/sports/americanfootball_nfl/odds',
