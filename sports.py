@@ -5,6 +5,7 @@ import json
 from DateConverter import *
 import zoneinfo
 from tkinter import messagebox
+import config
 
 
 
@@ -12,8 +13,9 @@ class App(tk.Tk):
     def __init__(self):
         super().__init__()
 
-        #API_KEY = "2d319702d293bc1f4ef00f963615da65"
-        API_KEY = "74991ddf5f36ad6f09f21d4c7143aecd"   
+        
+        API_KEY = config.API_KEY
+          
         REGIONS = 'us' # uk | us | eu | au. Multiple can be specified if comma delimited
         MARKETS = 'h2h,spreads' # h2h | spreads | totals. Multiple can be specified if comma delimited
         ODDS_FORMAT = 'american' # decimal | american
